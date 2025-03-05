@@ -3,6 +3,7 @@ import SearchBox from './components/SearchBox';
 import WeatherCard from './components/WeatherCard';
 import ForecastCard from './components/ForecastCard';
 import axios from 'axios';
+import { Box, Container, Typography } from '@mui/material';
 
 const App = () => {
   const [selectedCity, setSelectedCity] = useState('');
@@ -36,19 +37,30 @@ const App = () => {
     fetchWeather();
   }, [selectedCity]);
 
+  const boxStyle = {
+    // display: 'flex',
+    // flexDirection: { xs: 'column', md: 'row' },
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 3,
+    mt: 4
+  }
+
   return (
-    <div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      style={{ textAlign: 'center', padding: '20px' }}
-    >
-      <h1>Weather App</h1>
+    <Container maxWidth="md" sx={{ textAlign: 'center', py: 4 }}>
+      <Typography variant="h3" component="h1" sx={{ mb: 3, fontWeight: 'bold' }}>
+        Weather App
+      </Typography>
+
       <SearchBox onCitySelect={setSelectedCity} />
-      {loading && <p>Loading weather data...</p>}
-      <WeatherCard weatherData={weatherData} />
-      {weatherData && <ForecastCard forecast={weatherData.forecast} />}
-    </div>
+
+      {loading && <Typography variant="body1" sx={{ mt: 2 }}>Loading weather data...</Typography>}
+
+      <Box sx={boxStyle}>
+        <WeatherCard weatherData={weatherData} />
+        {weatherData && <ForecastCard forecast={weatherData.forecast} />}
+      </Box>
+    </Container>
   );
 };
 
