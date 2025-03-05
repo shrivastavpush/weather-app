@@ -1,6 +1,5 @@
 import axios from 'axios';
 import debounce from 'lodash.debounce';
-import { v4 as uuidv4 } from 'uuid';
 
 const fetchCities = debounce(async (input, setOptions, setLoading) => {
 	if (!input) return;
@@ -10,6 +9,7 @@ const fetchCities = debounce(async (input, setOptions, setLoading) => {
 		const response = await axios.get(
 			`https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${input}`,
 			{
+				params: { limit: 10, includeDeleted: 'NONE' },
 				headers: {
 					'X-RapidAPI-Key': import.meta.env.VITE_RAPIDAPI_KEY,
 					'X-RapidAPI-Host': import.meta.env.VITE_GEODB_HOST,
@@ -17,12 +17,33 @@ const fetchCities = debounce(async (input, setOptions, setLoading) => {
 			}
 		);
 
-		setOptions(response.data.data.map((city) => ({
-			label: city.type === "CITY" ? `${city.city}, ${city.region}, ${city.countryCode}` : '',
-			value: city.type === "CITY" ? `${city.city}, ${city.region}, ${city.countryCode}` : '',
-			id: city.id || uuidv4(),
+		const cityData = response.data.data
+
+		const uniqueCities = [];
+		const seenKeys = new Set();
+		const seenRegionWdIds = new Set();
+
+		cityData
+			.filter(city => city.population > 0) // Removing all cities with population = 0
+			.forEach(city => {
+				const cityKey = `${city.city}-${city.region}-${city.country}`; // Unique key with city, region, country
+				const regionWdId = city.regionWdId; // Unique regionWdId
+
+				if (!seenKeys.has(cityKey) && !seenRegionWdIds.has(regionWdId)) {
+					seenKeys.add(cityKey);
+					seenRegionWdIds.add(regionWdId);
+					uniqueCities.push(city);
+				}
+			});
+
+		console.log(cityData);
+		console.log(uniqueCities);
+
+		setOptions(uniqueCities.map((city) => ({
+			label: `${city.city}, ${city.region}, ${city.countryCode}`,
+			value: `${city.city}`,
+			id: city.id,
 		})));
-		console.log("all cities", response.data.data);
 	} catch (error) {
 		console.error('Error fetching cities:', error);
 	}

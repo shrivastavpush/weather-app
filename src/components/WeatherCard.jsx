@@ -18,8 +18,7 @@ const WeatherCard = ({ weatherData }) => {
         <Card variant="outlined" sx={weatherCardStyle} >
             {/* Location */}
             <Typography variant="h5" fontWeight="bold">
-                {weatherData.location.name}, {weatherData.location.region},
-                {weatherData.location.country === "Inde" ? "India" : weatherData.location.country}
+                {weatherData.location.name}, {weatherData.location.region}, {weatherData.location.country === "Inde" ? "India" : weatherData.location.country}
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.8 }}>
                 Local time: {weatherData.location.localtime}
